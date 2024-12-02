@@ -8,31 +8,34 @@ export interface ICard {
   createdAt: Date;
 }
 
-const cardSchema = new Schema<ICard>({
-  name: {
-    type: String,
-    minlength: 2,
-    maxlength: 30,
-    required: true,
-  },
-  link: {
-    type: String,
-    required: true,
-  },
-  owner: {
-    type: Schema.Types.ObjectId,
-    required: true,
-  },
-  likes: [
-    {
-      type: Schema.Types.ObjectId,
-      default: null,
+const cardSchema = new Schema<ICard>(
+  {
+    name: {
+      type: String,
+      minlength: [2, "Имя должно содержать не менее 2 символов"],
+      maxlength: [30, "Имя должно содержать не более 30 символов"],
+      required: true,
     },
-  ],
-  createdAt: {
-    type: Date,
-    default: Date.now,
+    link: {
+      type: String,
+      required: true,
+    },
+    owner: {
+      type: Schema.Types.ObjectId,
+      required: true,
+    },
+    likes: [
+      {
+        type: Schema.Types.ObjectId,
+        default: undefined,
+      },
+    ],
+    createdAt: {
+      type: Date,
+      default: Date.now,
+    },
   },
-});
+  { versionKey: false, timestamps: true }
+);
 
 export default model<ICard>("card", cardSchema);

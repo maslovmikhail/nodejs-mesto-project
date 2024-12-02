@@ -1,10 +1,18 @@
 import { Router } from "express";
-import { getAllUsers, getUser, createUser } from "../controllers/users";
+import {
+  getAllUsers,
+  getUser,
+  createUser,
+  updateUserProfile,
+  updateUserAvatar,
+} from "../controllers/users";
 
-const router = Router();
+const usersRouter = Router();
 
-router.get("/", getAllUsers);
-router.get("/:userId", getUser);
-router.post("/", createUser);
+usersRouter.get("/", getAllUsers);
+usersRouter.post("/", createUser);
+usersRouter.patch("/me", updateUserProfile);
+usersRouter.patch("/me/avatar", updateUserAvatar);
+usersRouter.get("/:userId", getUser);
 
-export default router;
+export default usersRouter;
