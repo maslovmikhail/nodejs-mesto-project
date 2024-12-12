@@ -1,4 +1,4 @@
-import { constants } from "http2";
+import { constants } from 'http2';
 
 class ConflictError extends Error {
   public statusCode: number;
