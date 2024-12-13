@@ -1,8 +1,12 @@
 import { NextFunction, Request, Response } from 'express';
 import { constants } from 'http2';
-import { Error as MongooseError } from 'mongoose';
+import { Error as MongooseError, Schema } from 'mongoose';
 import Card from '../models/card';
 import BadRequestError from '../errors/bad-request-error';
+
+interface CardRequest extends Request {
+  user?: { _id: Schema.Types.ObjectId };
+}
 
 // Возвращаем все карточки
 export const getAllCards = async (
@@ -20,13 +24,13 @@ export const getAllCards = async (
 
 // Создаём карточку
 export const createCard = async (
-  req: Request,
+  req: CardRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const { name, link } = req.body;
-    const newCard = await Card.create({ name, link, owner: req.body.user._id });
+    const newCard = await Card.create({ name, link, owner: req.user?._id });
     return res.status(constants.HTTP_STATUS_CREATED).send(await newCard.save());
   } catch (error) {
     if (error instanceof MongooseError.ValidationError) {
@@ -59,14 +63,14 @@ export const deleteCard = async (
 
 // Добавляем лайк карточке
 export const likeCard = async (
-  req: Request,
+  req: CardRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
-      { $addToSet: { likes: res.locals.user._id } },
+      { $addToSet: { likes: req.user?._id } },
       { new: true },
     );
     return res.send(card);
@@ -87,14 +91,14 @@ export const likeCard = async (
 
 // Удаляем лайк с карточки
 export const dislikeCard = async (
-  req: Request,
+  req: CardRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
     const card = await Card.findByIdAndUpdate(
       req.params.cardId,
-      { $pull: { likes: res.locals.user._id } },
+      { $pull: { likes: req.user?._id } },
       { new: true },
     );
     return res.send(card);

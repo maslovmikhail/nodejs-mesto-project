@@ -6,17 +6,17 @@ import {
   updateUserAvatar,
   userInfo,
 } from '../controllers/users';
-import { validateBody, validateObjId } from '../middlewares/validations';
+import { validateUserBody, validateUserId } from '../middlewares/validations';
 
 const usersRouter = Router();
 
 usersRouter.get('/', getAllUsers);
 
-usersRouter.patch('/me', validateBody, updateUserProfile);
+usersRouter.patch('/me', validateUserBody, updateUserProfile);
 
-usersRouter.patch('/me/avatar', validateBody, updateUserAvatar);
+usersRouter.patch('/me/avatar', validateUserBody, updateUserAvatar);
 
-usersRouter.get('/me', userInfo);
-usersRouter.get('/:userId', validateObjId, getUser);
+usersRouter.get('/me', validateUserId, userInfo);
+usersRouter.get('/:userId', validateUserId, getUser);
 
 export default usersRouter;

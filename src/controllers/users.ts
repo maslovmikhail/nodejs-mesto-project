@@ -7,6 +7,10 @@ import User from '../models/user';
 import NotFoundError from '../errors/not-found-error';
 import BadRequestError from '../errors/bad-request-error';
 
+interface UserRequest extends Request {
+  user?: { _id: string };
+}
+
 // Возвращаем всех пользователей
 export const getAllUsers = async (
   _req: Request,
@@ -51,7 +55,10 @@ export const createUser = async (
     const { email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hash });
-    return res.status(constants.HTTP_STATUS_CREATED).send(await user.save());
+    if (user.password) {
+      user.password = '';
+    }
+    return res.status(constants.HTTP_STATUS_CREATED).send(user);
   } catch (error) {
     if (error instanceof Error && error.message.includes('E11000')) {
       return next(
@@ -72,12 +79,12 @@ export const createUser = async (
 
 // Обновляем профиль пользователя
 export const updateUserProfile = async (
-  req: Request & { user?: { _id: string } },
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const user = await User.findByIdAndUpdate(req.user!._id, req.body, {
+    const user = await User.findByIdAndUpdate(req.user?._id, req.body, {
       new: true,
       runValidators: true,
     }).orFail(
@@ -101,12 +108,12 @@ export const updateUserProfile = async (
 
 // Обновляем аватар пользователя
 export const updateUserAvatar = async (
-  req: Request & { user?: { _id: string } },
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const userProfile = await User.findByIdAndUpdate(req.user!._id, req.body, {
+    const userProfile = await User.findByIdAndUpdate(req.user?._id, req.body, {
       new: true,
       runValidators: true,
     }).orFail(new NotFoundError('Пользователь с указанным _id не найден'));
@@ -148,12 +155,12 @@ export const login = async (
 
 // Информация о текущем пользователе
 export const userInfo = async (
-  req: Request & { user?: { _id: string } },
+  req: UserRequest,
   res: Response,
   next: NextFunction,
 ) => {
   try {
-    const user = await User.findById(req.user!._id);
+    const user = await User.findById(req.user?._id);
     return res.send(user);
   } catch (_error) {
     return next(new NotFoundError('Пользователь не найден'));
