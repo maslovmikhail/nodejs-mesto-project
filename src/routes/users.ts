@@ -6,7 +6,7 @@ import {
   updateUserAvatar,
   userInfo,
 } from '../controllers/users';
-import { validateUserBody, validateUserId } from '../middlewares/validations';
+import { validateUserBody } from '../middlewares/validations';
 
 const usersRouter = Router();
 
@@ -16,7 +16,7 @@ usersRouter.patch('/me', validateUserBody, updateUserProfile);
 
 usersRouter.patch('/me/avatar', validateUserBody, updateUserAvatar);
 
-usersRouter.get('/me', validateUserId, userInfo);
-usersRouter.get('/:userId', validateUserId, getUser);
+usersRouter.get('/me', userInfo);
+usersRouter.get('/:userId', getUser);
 
 export default usersRouter;

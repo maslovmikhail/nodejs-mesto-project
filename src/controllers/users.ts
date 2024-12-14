@@ -55,10 +55,9 @@ export const createUser = async (
     const { email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
     const user = await User.create({ email, password: hash });
-    if (user.password) {
-      user.password = '';
-    }
-    return res.status(constants.HTTP_STATUS_CREATED).send(user);
+    const newUser = user.toObject();
+    Reflect.deleteProperty(newUser, 'password');
+    return res.status(constants.HTTP_STATUS_CREATED).send(newUser);
   } catch (error) {
     if (error instanceof Error && error.message.includes('E11000')) {
       return next(
